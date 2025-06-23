@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Blinddate – Sommerfest 7b</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: white;
+      margin-bottom: 10px;
+    }
+    .container {
+      background: white;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 90%;
+      padding: 10px;
+      margin: 10px auto;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      display: block;
+    }
+    button {
+      background-color: #f093fb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #f5576c;
+    }
+    .admin-panel {
+      display: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #f093fb;
+      color: white;
+    }
+    #qrcode {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Blinddate beim Sommerfest der 7b ?</h1>
+
+  <div class="container">
+    <h2>Anmeldung</h2>
+    <input type="text" id="name" placeholder="Dein Name" />
+    <input type="number" id="age" placeholder="Dein Alter" />
+    <input type="number" id="time" placeholder="Wann willst du kommen (14:oo-17:30)" />
+              <button onclick="submitForm()">Jetzt anmelden</button>
+  </div>
+
+  <div class="container">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminCode" placeholder="Admin-Code eingeben" />
+    <button onclick="checkAdmin()">Einloggen</button>
+  </div>
+
+  <div class="container admin-panel" id="adminPanel">
+    <h2>Alle Anmeldungen</h2>
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Alter</th><th>Uhrzeit</th></tr>
+      </thead>
+      <tbody id="registrationTable"></tbody>
+    </table>
+  </div>
+
+  <div class="container">
+    <h2>Seite als QR-Code</h2>
+    <div id="qrcode"></div>
+  </div>
+
+  <script>
+    const adminPassword = "7b-sommer";
+
+    function submitForm() {
+      const name = document.getElementById("name").value.trim();
+      const age = document.getElementById("age").value.trim();
+      const time = document.getElementById("time").value;
+
+      if (!name || !age || !time) {
+        alert("Bitte alle Felder ausfüllen.");
+        return;
+      }
+
+      const entry = { name, age, time };
+      const registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+      registrations.push(entry);
+      localStorage.setItem("registrations", JSON.stringify(registrations));
+
+      alert("Anmeldung erfolgreich!");
+
+      document.getElementById("name").value = "";
+      document.getElementById("age").value = "";
+      document.getElementById("time").value = "";
+    }
+
+    function checkAdmin() {
+      const code = document.getElementById("adminCode").value;
+      if (code === adminPassword) {
+        document.getElementById("adminPanel").style.display = "block";
+        loadRegistrations();
+      } else {
+        alert("Falscher Admin-Code.");
+      }
+    }
+
+    function loadRegistrations() {
+      const table = document.getElementById("registrationTable");
+      table.innerHTML = "";
+      const registrations = JSON.parse(localStorage.getItem("registrations")) || [];
+
+      registrations.forEach(entry => {
+        const row = `<tr><td>${entry.name}</td><td>${entry.age}</td><td>${entry.time}</td></tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: window.location.href,
+      width: 150,
+      height: 150,
+      colorDark: "#000000",
+      colorLight: "#ffffff"
+    });
+  </script>
+
+</body>
+</html>
